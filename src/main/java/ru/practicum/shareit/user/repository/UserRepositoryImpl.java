@@ -16,7 +16,7 @@ import java.util.Optional;
 public class UserRepositoryImpl implements UserRepository {
 
     private final Map<Long, User> users = new HashMap<>();
-    private static long idCount = 0L;
+    private long idCount = 0L;
 
 
     @Override

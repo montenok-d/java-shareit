@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class ItemRepositoryImpl implements ItemRepository {
 
     private final Map<Long, Item> items = new HashMap<>();
-    private static long idCount = 0L;
+    private long idCount = 0L;
 
     public Optional<Item> getById(long id) {
         return Optional.ofNullable(items.get(id));
