@@ -69,7 +69,7 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemDto> getAll(long ownerId) {
         List<Item> allItems = itemRepository.getAll(ownerId);
         return allItems.stream()
-                .map(ItemMapper :: mapToItemDto)
+                .map(ItemMapper::mapToItemDto)
                 .toList();
     }
 
@@ -80,7 +80,7 @@ public class ItemServiceImpl implements ItemService {
         }
         List<Item> searchResults = itemRepository.search(text);
         return searchResults.stream()
-                .map(ItemMapper :: mapToItemDto)
+                .map(ItemMapper::mapToItemDto)
                 .toList();
     }
 

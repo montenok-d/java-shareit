@@ -46,7 +46,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public void searchByEmail(User user) {
-        for (User i: users.values()) {
+        for (User i : users.values()) {
             if (i.getEmail().equals(user.getEmail())) {
                 throw new ValidationException("Email must be unique");
             }

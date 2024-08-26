@@ -7,7 +7,7 @@ import ru.practicum.shareit.request.model.ItemRequest;
 @NoArgsConstructor
 public final class RequestMapping {
 
-    public static ItemRequestDto toItemRequestDto (ItemRequest itemRequest) {
+    public static ItemRequestDto toItemRequestDto(ItemRequest itemRequest) {
         ItemRequestDto dto = ItemRequestDto.builder()
                 .id(itemRequest.getId())
                 .description(itemRequest.getDescription())
