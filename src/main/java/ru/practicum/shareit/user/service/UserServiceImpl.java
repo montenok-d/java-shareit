@@ -44,7 +44,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void delete(long id) {
-        checkUserExists(id);
         userRepository.delete(id);
     }
 

@@ -8,12 +8,11 @@ import ru.practicum.shareit.request.model.ItemRequest;
 public final class RequestMapping {
 
     public static ItemRequestDto toItemRequestDto(ItemRequest itemRequest) {
-        ItemRequestDto dto = ItemRequestDto.builder()
+        return ItemRequestDto.builder()
                 .id(itemRequest.getId())
                 .description(itemRequest.getDescription())
                 .requestor(itemRequest.getRequestor())
                 .created(itemRequest.getCreated())
                 .build();
-        return dto;
     }
 }
