@@ -24,16 +24,16 @@ create TABLE IF NOT EXISTS bookings (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     start_date TIMESTAMP,
     end_date TIMESTAMP,
-    item_id INTEGER REFERENCES items (id) ON delete CASCADE ON update CASCADE,
-    booker_id INTEGER REFERENCES users (id) ON delete CASCADE ON update CASCADE,
+    item_id BIGINT REFERENCES items (id) ON delete CASCADE ON update CASCADE,
+    booker_id BIGINT REFERENCES users (id) ON delete CASCADE ON update CASCADE,
     status varchar(10) NOT NULL
 );
 
 create TABLE IF NOT EXISTS comments (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     text VARCHAR(255) NOT NULL,
-    item_id INTEGER REFERENCES items (id) ON delete CASCADE ON update CASCADE,
-    author_id INTEGER REFERENCES users (id) ON delete CASCADE ON update CASCADE,
+    item_id BIGINT REFERENCES items (id) ON delete CASCADE ON update CASCADE,
+    author_id BIGINT REFERENCES users (id) ON delete CASCADE ON update CASCADE,
     created TIMESTAMP
 );
 
