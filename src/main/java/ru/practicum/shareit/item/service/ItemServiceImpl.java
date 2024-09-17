@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.error.EntityNotFoundException;
@@ -27,6 +28,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional(readOnly = true)
 public class ItemServiceImpl implements ItemService {
 
     private final ItemRepository itemRepository;
@@ -51,6 +53,7 @@ public class ItemServiceImpl implements ItemService {
         return itemDto;
     }
 
+    @Transactional
     @Override
     public ItemDto create(ItemDto itemDto, long ownerId) {
         User owner = userRepository.findById(ownerId)
@@ -59,12 +62,11 @@ public class ItemServiceImpl implements ItemService {
         Item item = ItemMapper.mapToItem(itemDto);
         item.setOwner(owner);
         item.setRequest(itemRequest);
-        log.info("item create {}", item.getId());
         Item newItem = itemRepository.save(item);
-        log.info("item create {}", newItem.getId());
         return ItemMapper.mapToItemDto(newItem);
     }
 
+    @Transactional
     @Override
     public ItemDto update(ItemDto itemDto, long itemId, long userId) {
         Item item = checkItemExists(itemId);
@@ -121,6 +123,7 @@ public class ItemServiceImpl implements ItemService {
                 .toList();
     }
 
+    @Transactional
     @Override
     public CommentDto addComment(long itemId, long userId, CommentDto commentDto) {
         Item item = checkItemExists(itemId);
