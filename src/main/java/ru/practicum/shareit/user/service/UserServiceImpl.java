@@ -16,15 +16,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getById(long id) {
-        User user = userRepository.getById(id)
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("User № %d not found", id)));
         return UserMapper.mapToUserDto(user);
     }
 
     @Override
     public UserDto create(UserDto userDto) {
-        userRepository.searchByEmail(UserMapper.mapToUser(userDto));
-        User user = userRepository.create(UserMapper.mapToUser(userDto));
+        User user = userRepository.save(UserMapper.mapToUser(userDto));
         return UserMapper.mapToUserDto(user);
     }
 
@@ -32,23 +31,22 @@ public class UserServiceImpl implements UserService {
     public UserDto update(UserDto userDto, long id) {
         User user = checkUserExists(id);
         if (userDto.getEmail() != null && !userDto.getEmail().isBlank()) {
-            userRepository.searchByEmail(UserMapper.mapToUser(userDto));
             user.setEmail(userDto.getEmail());
         }
         if (userDto.getName() != null && !userDto.getName().isBlank()) {
             user.setName(userDto.getName());
         }
-        User newUser = userRepository.update(user, id);
+        User newUser = userRepository.save(user);
         return UserMapper.mapToUserDto(newUser);
     }
 
     @Override
     public void delete(long id) {
-        userRepository.delete(id);
+        userRepository.deleteById(id);
     }
 
     public User checkUserExists(long id) {
-        return userRepository.getById(id)
+        return userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("User № %d not found", id)));
     }
 }
