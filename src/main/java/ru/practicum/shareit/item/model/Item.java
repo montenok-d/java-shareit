@@ -6,7 +6,8 @@ import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 @Builder
-@Getter @Setter
+@Getter
+@Setter
 @Table(name = "items")
 @Entity
 @AllArgsConstructor
