@@ -10,7 +10,7 @@ import java.util.List;
 
 @Data
 @Builder
-public class ItemDto {
+public class ItemWithBookingDto {
     private long id;
     @NotBlank
     private String name;

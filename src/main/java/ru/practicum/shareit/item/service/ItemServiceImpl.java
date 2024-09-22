@@ -1,45 +1,76 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.mapper.ItemMapper;
-import ru.practicum.shareit.item.model.Item;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.error.EntityNotFoundException;
+import ru.practicum.shareit.error.ValidationException;
+import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemWithBookingDto;
+import ru.practicum.shareit.item.mapper.CommentMapper;
+import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Comment;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
+@Transactional(readOnly = true)
 public class ItemServiceImpl implements ItemService {
 
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
+    private final BookingRepository bookingRepository;
 
     @Override
     public ItemDto getById(long id) {
-        Item item = itemRepository.getById(id)
+        Item item = itemRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Item № %d not found", id)));
-        return ItemMapper.mapToItemDto(item);
+        ItemDto itemDto = ItemMapper.mapToItemDto(item);
+        List<Comment> comments = commentRepository.findByItemId(id);
+        List<CommentDto> commentsDto = comments.stream()
+                .map(CommentMapper::mapToCommentDto)
+                .toList();
+        itemDto.setComments(commentsDto);
+        Booking lastBooking = bookingRepository.findLastBooking(itemDto.getId(), LocalDateTime.now());
+        Booking nextBooking = bookingRepository.findNextBooking(itemDto.getId(), LocalDateTime.now());
+        itemDto.setLastBooking((lastBooking != null) ? lastBooking.getStart() : null);
+        itemDto.setNextBooking((nextBooking != null) ? nextBooking.getStart() : null);
+        return itemDto;
     }
 
+    @Transactional
     @Override
     public ItemDto create(ItemDto itemDto, long ownerId) {
-        User user = userRepository.getById(ownerId)
+        User owner = userRepository.findById(ownerId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("User № %d not found", ownerId)));
-        itemDto.setOwner(ownerId);
-        Item item = itemRepository.create(ItemMapper.mapToItem(itemDto));
-        return ItemMapper.mapToItemDto(item);
+        ItemRequest itemRequest = null;
+        Item item = ItemMapper.mapToItem(itemDto);
+        item.setOwner(owner);
+        item.setRequest(itemRequest);
+        Item newItem = itemRepository.save(item);
+        return ItemMapper.mapToItemDto(newItem);
     }
 
+    @Transactional
     @Override
     public ItemDto update(ItemDto itemDto, long itemId, long userId) {
         Item item = checkItemExists(itemId);
-        if (item.getOwner() != userId) {
+        if (item.getOwner().getId() != userId) {
             throw new EntityNotFoundException("Access denied");
         }
         itemDto.setId(itemId);
@@ -52,25 +83,33 @@ public class ItemServiceImpl implements ItemService {
         if (itemDto.getAvailable() != null) {
             item.setAvailable(itemDto.getAvailable());
         }
-        Item updatedItem = itemRepository.update(item,itemId);
+        Item updatedItem = itemRepository.save(item);
         return ItemMapper.mapToItemDto(updatedItem);
     }
 
     @Override
     public void delete(long itemId, long userId) {
         Item item = checkItemExists(itemId);
-        if (item.getOwner() != userId) {
+        if (item.getOwner().getId() != userId) {
             throw new EntityNotFoundException("Access denied");
         }
-        itemRepository.delete(itemId);
+        itemRepository.deleteById(itemId);
     }
 
     @Override
-    public List<ItemDto> getAll(long ownerId) {
-        List<Item> allItems = itemRepository.getAll(ownerId);
-        return allItems.stream()
-                .map(ItemMapper::mapToItemDto)
+    public List<ItemWithBookingDto> getAll(long ownerId) {
+        List<Item> allItems = itemRepository.findByOwnerId(ownerId);
+        List<ItemWithBookingDto> allItemDtos = allItems.stream()
+                .map(ItemMapper::mapToItemWithBookingDto)
                 .toList();
+        LocalDateTime currentTime = LocalDateTime.now();
+        for (ItemWithBookingDto itemDto : allItemDtos) {
+            Booking lastBooking = bookingRepository.findLastBooking(itemDto.getId(), currentTime);
+            Booking nextBooking = bookingRepository.findNextBooking(itemDto.getId(), currentTime);
+            itemDto.setLastBooking((lastBooking != null) ? lastBooking.getStart() : null);
+            itemDto.setNextBooking((nextBooking != null) ? nextBooking.getStart() : null);
+        }
+        return allItemDtos;
     }
 
     @Override
@@ -84,8 +123,24 @@ public class ItemServiceImpl implements ItemService {
                 .toList();
     }
 
+    @Transactional
+    @Override
+    public CommentDto addComment(long itemId, long userId, CommentDto commentDto) {
+        Item item = checkItemExists(itemId);
+        User author = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("User № %d not found", userId)));
+        if (bookingRepository.findByBookerIdAndItemId(itemId, userId, LocalDateTime.now()).isEmpty()) {
+            throw new ValidationException("This user cannot create comment on item");
+        }
+        Comment comment = CommentMapper.mapToComment(commentDto);
+        comment.setAuthor(author);
+        comment.setItem(item);
+        commentRepository.save(comment);
+        return CommentMapper.mapToCommentDto(comment);
+    }
+
     public Item checkItemExists(long id) {
-        return itemRepository.getById(id)
+        return itemRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Item № %d not found", id)));
     }
 }
