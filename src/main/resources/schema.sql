@@ -37,4 +37,10 @@ create TABLE IF NOT EXISTS comments (
     created TIMESTAMP
 );
 
+create TABLE IF NOT EXISTS requests (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    description VARCHAR(255) NOT NULL,
+    requestor_id BIGINT REFERENCES users (id) ON delete CASCADE ON update CASCADE,
+    created TIMESTAMP
+);
 
