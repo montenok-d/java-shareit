@@ -4,6 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.error.EntityNotFoundException;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.mapper.RequestMapping;
 import ru.practicum.shareit.request.model.ItemRequest;
@@ -20,12 +23,18 @@ import java.util.List;
 public class ItemRequestServiceImpl implements ItemRequestService {
     private final ItemRequestRepository requestRepository;
     private final UserRepository userRepository;
+    private final ItemRepository itemRepository;
 
     @Override
     public ItemRequestDto findById(long id) {
         ItemRequest request = requestRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("ItemRequest № %d not found", id)));
-    return RequestMapping.mapToRequestDto(request);
+        List<ItemDto> itemsDto = itemRepository.findByRequestId(request.getId()).stream()
+                .map(ItemMapper::mapToItemDto)
+                .toList();
+        ItemRequestDto requestDto = RequestMapping.mapToRequestDto(request);
+        requestDto.setItems(itemsDto);
+    return requestDto;
     }
 
     @Override
@@ -37,6 +46,12 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         List<ItemRequestDto> requestsDto = requests.stream()
                 .map(RequestMapping::mapToRequestDto)
                 .toList();
+        for (ItemRequestDto request : requestsDto) {
+            List<ItemDto> itemsDto = itemRepository.findByRequestId(request.getId()).stream()
+                    .map(ItemMapper::mapToItemDto)
+                    .toList();
+            request.setItems(itemsDto);
+        }
         return requestsDto;
     }
 
