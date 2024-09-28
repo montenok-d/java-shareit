@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.error.EntityNotFoundException;
 import ru.practicum.shareit.error.ValidationException;
@@ -134,7 +135,7 @@ public class ItemServiceImpl implements ItemService {
         Item item = checkItemExists(itemId);
         User author = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("User № %d not found", userId)));
-        if (bookingRepository.findByBookerIdAndItemId(itemId, userId, LocalDateTime.now()).isEmpty()) {
+        if (bookingRepository.findAllByBookerIdAndItemIdAndStatusAndEndBefore(userId, itemId, Status.APPROVED, LocalDateTime.now()).isEmpty()) {
             throw new ValidationException("This user cannot create comment on item");
         }
         Comment comment = CommentMapper.mapToComment(commentDto);
