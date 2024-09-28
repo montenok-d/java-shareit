@@ -7,8 +7,9 @@ create TABLE IF NOT EXISTS users (
 
 create TABLE IF NOT EXISTS requests (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    description varchar(255) NOT NULL,
-    requestor_id INTEGER REFERENCES users (id) ON delete CASCADE ON update CASCADE
+    created TIMESTAMP NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    requestor_id BIGINT REFERENCES users (id) ON delete CASCADE ON update CASCADE
 );
 
 create TABLE IF NOT EXISTS items (
@@ -34,13 +35,6 @@ create TABLE IF NOT EXISTS comments (
     text VARCHAR(255) NOT NULL,
     item_id BIGINT REFERENCES items (id) ON delete CASCADE ON update CASCADE,
     author_id BIGINT REFERENCES users (id) ON delete CASCADE ON update CASCADE,
-    created TIMESTAMP
-);
-
-create TABLE IF NOT EXISTS requests (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    description VARCHAR(255) NOT NULL,
-    requestor_id BIGINT REFERENCES users (id) ON delete CASCADE ON update CASCADE,
     created TIMESTAMP
 );
 

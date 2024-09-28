@@ -57,6 +57,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         ItemRequest itemRequest = RequestMapping.mapToRequest(requestDto);
         itemRequest.setCreated(LocalDateTime.now());
         itemRequest.setRequestor(requestor);
-        return RequestMapping.mapToRequestDto(requestRepository.save(itemRequest));
+        itemRequest = requestRepository.save(itemRequest);
+        return RequestMapping.mapToRequestDto(itemRequest);
     }
 }

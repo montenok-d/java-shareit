@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -24,6 +25,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final ItemRepository itemRepository;
@@ -43,7 +45,9 @@ public class BookingServiceImpl implements BookingService {
         booking.setBooker(booker);
         booking.setItem(item);
         booking.setStatus(Status.WAITING);
-        return BookingMapper.mapToBookingDto(bookingRepository.save(booking));
+        ResponseBookingDto dto = BookingMapper.mapToBookingDto(bookingRepository.save(booking));
+        log.info("DTO: {}", dto);
+        return dto;
     }
 
     @Transactional

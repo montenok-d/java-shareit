@@ -11,7 +11,6 @@ public final class RequestMapping {
         return ItemRequestDto.builder()
                 .id(request.getId())
                 .description(request.getDescription())
-                .requestor(request.getRequestor())
                 .created(request.getCreated())
                 .build();
     }
@@ -20,7 +19,6 @@ public final class RequestMapping {
         return ItemRequest.builder()
                 .id(dto.getId())
                 .description(dto.getDescription())
-                .requestor(dto.getRequestor())
                 .created(dto.getCreated())
                 .build();
     }

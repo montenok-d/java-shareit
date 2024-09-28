@@ -28,15 +28,15 @@ public class BookingClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> create(long userId, RequestBookingDto requestDto) {
-        return post("", userId, requestDto);
+    public ResponseEntity<Object> create(long userId, RequestBookingDto bookingDto) {
+        return post("", userId, bookingDto);
     }
 
-    public ResponseEntity<Object> findById(long userId, Long bookingId) {
+    public ResponseEntity<Object> findById(long userId, long bookingId) {
         return get("/" + bookingId, userId);
     }
 
-    public ResponseEntity<Object> update(long bookingId, boolean approved, long userId) {
+    public ResponseEntity<Object> update(long bookingId, long userId, boolean approved) {
         Map<String, Object> parameters = Map.of("approved", approved);
         return patch("/" + bookingId + "?approved={approved}", userId, parameters, null);
     }
