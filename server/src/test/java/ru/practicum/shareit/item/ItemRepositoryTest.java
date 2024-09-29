@@ -70,6 +70,15 @@ public class ItemRepositoryTest {
     @Test
     void findByRequestId() {
         List<Item> items = itemRepository.findByRequestId(request.getId());
+
+        assertThat(items.size(), equalTo(1));
+        assertThat(items.getFirst(), equalTo(item));
+    }
+
+    @Test
+    void search() {
+        List<Item> items = itemRepository.search("Test");
+
         assertThat(items.size(), equalTo(1));
         assertThat(items.getFirst(), equalTo(item));
     }
