@@ -7,7 +7,6 @@ import ru.practicum.shareit.booking.model.Status;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
@@ -35,9 +34,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Query("SELECT b FROM Booking AS b WHERE b.item.owner.id = ?1 AND b.status = ?2")
     List<Booking> findByOwnerAndStatus(long userId, Status status);
-
-    @Query("SELECT b FROM Booking AS b WHERE b.item.id = ?1 AND b.booker.id = ?2 AND b.end < ?3")
-    List<Booking> findByBookerIdAndItemId(long itemId, long userId, LocalDateTime now);
 
     @Query("SELECT b FROM Booking AS b WHERE b.item.id = ?1 AND b.end > ?2")
     Booking findLastBooking(long itemId, LocalDateTime now);

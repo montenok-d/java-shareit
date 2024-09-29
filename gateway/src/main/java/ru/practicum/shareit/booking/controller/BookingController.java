@@ -10,7 +10,6 @@ import ru.practicum.shareit.booking.BookingClient;
 import ru.practicum.shareit.booking.dto.BookingState;
 import ru.practicum.shareit.booking.dto.RequestBookingDto;
 
-
 @Controller
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
@@ -27,29 +26,29 @@ public class BookingController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<Object> update(@PathVariable("id") long bookingId,
-                                     @RequestParam boolean approved,
-                                     @RequestHeader("X-Sharer-User-Id") long userId) {
+                                         @RequestParam boolean approved,
+                                         @RequestHeader("X-Sharer-User-Id") long userId) {
         log.info("Update booking. BookingId {}, userId: {}, approved: {}", bookingId, userId, approved);
         return bookingClient.update(bookingId, userId, approved);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> findById(@PathVariable("id") long bookingId,
-                                       @RequestHeader("X-Sharer-User-Id") long userId) {
+                                           @RequestHeader("X-Sharer-User-Id") long userId) {
         log.info("Get booking. BookingId: {}, userId: {}", bookingId, userId);
         return bookingClient.findById(userId, bookingId);
     }
 
     @GetMapping
     public ResponseEntity<Object> getAllByBooker(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                   @RequestParam(defaultValue = "ALL") BookingState state) {
+                                                 @RequestParam(defaultValue = "ALL") BookingState state) {
         log.info("Get bookings by booker. State: {}, userId: {}", state, userId);
         return bookingClient.getAllByBooker(userId, state);
     }
 
     @GetMapping("/owner")
     public ResponseEntity<Object> getAllByOwner(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                  @RequestParam(defaultValue = "ALL") BookingState state) {
+                                                @RequestParam(defaultValue = "ALL") BookingState state) {
         log.info("Get bookings by owner. State: {}, userId: {}", state, userId);
         return bookingClient.getAllByOwner(userId, state);
     }

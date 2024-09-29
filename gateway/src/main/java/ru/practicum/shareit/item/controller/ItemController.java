@@ -24,20 +24,20 @@ public class ItemController {
 
     @PostMapping
     public ResponseEntity<Object> create(@Valid @RequestBody ItemDto itemDto,
-                          @RequestHeader("X-Sharer-User-Id") long ownerId) {
+                                         @RequestHeader("X-Sharer-User-Id") long ownerId) {
         return itemClient.create(itemDto, ownerId);
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<Object> update(@RequestBody ItemDto itemDto,
-                          @PathVariable("id") long itemId,
-                          @RequestHeader("X-Sharer-User-Id") long userId) {
+                                         @PathVariable("id") long itemId,
+                                         @RequestHeader("X-Sharer-User-Id") long userId) {
         return itemClient.update(itemDto, itemId, userId);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> delete(@PathVariable("id") long itemId,
-                       @RequestHeader("X-Sharer-User-Id") long userId) {
+                                         @RequestHeader("X-Sharer-User-Id") long userId) {
         return itemClient.delete(itemId, userId);
     }
 
@@ -47,15 +47,15 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Object> search( @RequestHeader("X-Sharer-User-Id") long userId,
-                                          @RequestParam("text") String text) {
+    public ResponseEntity<Object> search(@RequestHeader("X-Sharer-User-Id") long userId,
+                                         @RequestParam("text") String text) {
         return itemClient.search(userId, text);
     }
 
     @PostMapping("/{id}/comment")
     public ResponseEntity<Object> addComment(@PathVariable("id") long itemId,
-                                 @RequestHeader("X-Sharer-User-Id") long userId,
-                                 @RequestBody CommentDto commentDto) {
+                                             @RequestHeader("X-Sharer-User-Id") long userId,
+                                             @RequestBody CommentDto commentDto) {
         return itemClient.addComment(userId, itemId, commentDto);
     }
 }

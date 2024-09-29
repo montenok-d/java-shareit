@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.request.ItemRequestClient;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 
-
 @Controller
 @RequiredArgsConstructor
 @RequestMapping(path = "/requests")

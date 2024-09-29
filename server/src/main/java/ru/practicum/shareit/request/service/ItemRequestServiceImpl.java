@@ -34,7 +34,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
                 .toList();
         ItemRequestDto requestDto = RequestMapping.mapToRequestDto(request);
         requestDto.setItems(itemsDto);
-    return requestDto;
+        return requestDto;
     }
 
     @Override
