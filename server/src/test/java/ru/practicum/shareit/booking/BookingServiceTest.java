@@ -90,6 +90,7 @@ class BookingServiceTest {
         Assertions.assertThat(createdBookingDto.getBooker().getName()).isEqualTo(user.getName());
         Assertions.assertThat(createdBookingDto.getItem().getName()).isEqualTo(newItem.getName());
     }
+
     @Test
     void getAllByBookerTest() {
         Booking booking1 = Booking.builder()

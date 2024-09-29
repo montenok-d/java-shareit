@@ -13,7 +13,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class ItemRequestController {
-    final private ItemRequestService requestService;
+
+    private final ItemRequestService requestService;
 
     @GetMapping("/{id}")
     public ItemRequestDto findById(@PathVariable("id") long id) {
