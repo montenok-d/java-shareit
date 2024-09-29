@@ -14,6 +14,7 @@ import ru.practicum.shareit.booking.model.State;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.error.EntityNotFoundException;
 import ru.practicum.shareit.error.ValidationException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
@@ -94,6 +95,53 @@ class BookingServiceTest {
     }
 
     @Test
+    void createNotExistedUserTest() {
+        User newOwner = User.builder()
+                .name("New user")
+                .email("new@mail.ru")
+                .build();
+
+        Item newItem = Item.builder()
+                .name("New item")
+                .description("New description")
+                .available(true)
+                .owner(newOwner)
+                .request(null)
+                .build();
+        userRepository.save(newOwner);
+        itemRepository.save(newItem);
+
+        BookingDto bookingCreateDto = BookingDto.builder()
+                .itemId(newItem.getId())
+                .start(LocalDateTime.now().plusMinutes(10))
+                .end(LocalDateTime.now().plusDays(3))
+                .build();
+
+        EntityNotFoundException thrown = org.junit.jupiter.api.Assertions.assertThrows(EntityNotFoundException.class, () ->
+                bookingService.create(bookingCreateDto, 9999));
+        assertEquals(String.format("User № %d not found", 9999), thrown.getMessage());
+    }
+
+    @Test
+    void createNotExistedItemTest() {
+        User newOwner = User.builder()
+                .name("New user")
+                .email("new@mail.ru")
+                .build();
+        userRepository.save(newOwner);
+
+        BookingDto bookingCreateDto = BookingDto.builder()
+                .itemId(9999)
+                .start(LocalDateTime.now().plusMinutes(10))
+                .end(LocalDateTime.now().plusDays(3))
+                .build();
+
+        EntityNotFoundException thrown = org.junit.jupiter.api.Assertions.assertThrows(EntityNotFoundException.class, () ->
+                bookingService.create(bookingCreateDto, newOwner.getId()));
+        assertEquals(String.format("Item № %d not found", 9999), thrown.getMessage());
+    }
+
+    @Test
     void createNotAvailableTest() {
         User newOwner = User.builder()
                 .name("New user")
@@ -130,11 +178,71 @@ class BookingServiceTest {
                 .end(LocalDateTime.now().plusDays(45))
                 .status(Status.APPROVED)
                 .build();
-
         booking = bookingRepository.save(booking);
+
         ResponseBookingDto bookingUpdateDto = bookingService.update(booking.getId(), true, owner.getId());
 
         Assertions.assertThat(bookingUpdateDto.getStatus()).isEqualTo(Status.APPROVED);
+    }
+
+    @Test
+    void updateWrongUserTest() {
+        Booking booking = Booking.builder()
+                .booker(user)
+                .item(item)
+                .start(LocalDateTime.now().plusDays(30))
+                .end(LocalDateTime.now().plusDays(45))
+                .status(Status.APPROVED)
+                .build();
+        User someUser = User.builder()
+                .name("New user")
+                .email("new@mail.ru")
+                .build();
+        User notOwner = userRepository.save(someUser);
+
+        Booking savedBooking = bookingRepository.save(booking);
+
+        ValidationException thrown = org.junit.jupiter.api.Assertions.assertThrows(ValidationException.class, () ->
+                bookingService.update(savedBooking.getId(), true, notOwner.getId()));
+        assertEquals("Access denied", thrown.getMessage());
+    }
+
+    @Test
+    void findByIdTest() {
+        Booking booking1 = Booking.builder()
+                .booker(user)
+                .item(item)
+                .start(LocalDateTime.now().plusDays(30))
+                .end(LocalDateTime.now().plusDays(45))
+                .status(Status.APPROVED)
+                .build();
+        bookingRepository.save(booking1);
+
+        ResponseBookingDto booking = bookingService.findById(booking1.getId(), user.getId());
+
+        assertThat(booking.getItem().getId()).isEqualTo(item.getId());
+        assertThat(booking.getBooker().getId()).isEqualTo(user.getId());
+    }
+
+    @Test
+    void findByIdWrongUserTest() {
+        Booking booking1 = Booking.builder()
+                .booker(user)
+                .item(item)
+                .start(LocalDateTime.now().plusDays(30))
+                .end(LocalDateTime.now().plusDays(45))
+                .status(Status.APPROVED)
+                .build();
+        User someUser = User.builder()
+                .name("New user")
+                .email("new@mail.ru")
+                .build();
+        User notOwner = userRepository.save(someUser);
+        bookingRepository.save(booking1);
+
+        ValidationException thrown = org.junit.jupiter.api.Assertions.assertThrows(ValidationException.class, () ->
+                bookingService.findById(booking1.getId(), notOwner.getId()));
+        assertEquals("Booking is not available", thrown.getMessage());
     }
 
     @Test

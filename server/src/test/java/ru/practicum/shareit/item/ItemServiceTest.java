@@ -198,6 +198,13 @@ class ItemServiceTest {
     }
 
     @Test
+    void searchItemByTextIsBlankTest() {
+        List<ItemDto> itemDtoList = itemService.search("");
+
+        assertThat(itemDtoList).hasSize(0);
+    }
+
+    @Test
     void addCommentTest() {
         Booking booking = new Booking(1L, LocalDateTime.now().minusDays(2), LocalDateTime.now().minusDays(1), item, user, Status.APPROVED);
         bookingRepository.save(booking);
