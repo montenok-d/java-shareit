@@ -92,6 +92,22 @@ class BookingServiceTest {
     }
 
     @Test
+    void updateTest() {
+        Booking booking = Booking.builder()
+                .booker(user)
+                .item(item)
+                .start(LocalDateTime.now().plusDays(30))
+                .end(LocalDateTime.now().plusDays(45))
+                .status(Status.APPROVED)
+                .build();
+
+        booking = bookingRepository.save(booking);
+        ResponseBookingDto bookingUpdateDto = bookingService.update(booking.getId(), true, owner.getId());
+
+        Assertions.assertThat(bookingUpdateDto.getStatus()).isEqualTo(Status.APPROVED);
+    }
+
+    @Test
     void getAllByBookerTest() {
         Booking booking1 = Booking.builder()
                 .booker(user)
@@ -176,7 +192,61 @@ class BookingServiceTest {
     }
 
     @Test
-    void getAllByBookerAllBookings() {
+    void getAllByBookerWaitingTest() {
+        Booking booking1 = Booking.builder()
+                .booker(user)
+                .item(item)
+                .start(LocalDateTime.now().plusDays(30))
+                .end(LocalDateTime.now().plusDays(45))
+                .status(Status.WAITING)
+                .build();
+
+        Booking booking2 = Booking.builder()
+                .booker(user)
+                .item(item)
+                .start(LocalDateTime.now().plusDays(60))
+                .end(LocalDateTime.now().plusDays(80))
+                .status(Status.APPROVED)
+                .build();
+
+        bookingRepository.save(booking1);
+        bookingRepository.save(booking2);
+
+        List<ResponseBookingDto> bookings = bookingService.getAllByBooker(user.getId(), State.WAITING);
+
+        assertThat(bookings).hasSize(1);
+        assertThat(bookings.get(0).getId()).isEqualTo(booking1.getId());
+    }
+
+    @Test
+    void getAllByBookerRejectedTest() {
+        Booking booking1 = Booking.builder()
+                .booker(user)
+                .item(item)
+                .start(LocalDateTime.now().plusDays(30))
+                .end(LocalDateTime.now().plusDays(45))
+                .status(Status.WAITING)
+                .build();
+
+        Booking booking2 = Booking.builder()
+                .booker(user)
+                .item(item)
+                .start(LocalDateTime.now().plusDays(60))
+                .end(LocalDateTime.now().plusDays(80))
+                .status(Status.REJECTED)
+                .build();
+
+        bookingRepository.save(booking1);
+        bookingRepository.save(booking2);
+
+        List<ResponseBookingDto> bookings = bookingService.getAllByBooker(user.getId(), State.REJECTED);
+
+        assertThat(bookings).hasSize(1);
+        assertThat(bookings.get(0).getId()).isEqualTo(booking2.getId());
+    }
+
+    @Test
+    void getAllByBooker() {
         Booking booking1 = Booking.builder()
                 .booker(user)
                 .item(item)
@@ -229,5 +299,143 @@ class BookingServiceTest {
         assertThat(bookings).hasSize(2);
         assertThat(bookings.get(0).getId()).isEqualTo(booking1.getId());
         assertThat(bookings.get(1).getId()).isEqualTo(booking2.getId());
+    }
+
+    @Test
+    void getCurrentByOwnerTest() {
+        Booking booking1 = Booking.builder()
+                .booker(user)
+                .item(item)
+                .start(LocalDateTime.now().minusDays(10))
+                .end(LocalDateTime.now().plusDays(2))
+                .status(Status.APPROVED)
+                .build();
+
+        Booking booking2 = Booking.builder()
+                .booker(user)
+                .item(item)
+                .start(LocalDateTime.now().minusDays(5))
+                .end(LocalDateTime.now().plusDays(10))
+                .status(Status.APPROVED)
+                .build();
+
+        bookingRepository.save(booking1);
+        bookingRepository.save(booking2);
+
+        List<ResponseBookingDto> bookings = bookingService.getAllByOwner(owner.getId(), State.ALL);
+
+        assertThat(bookings).hasSize(2);
+        assertThat(bookings.get(0).getId()).isEqualTo(booking1.getId());
+        assertThat(bookings.get(1).getId()).isEqualTo(booking2.getId());
+    }
+
+    @Test
+    void getFutureByOwnerTest() {
+        Booking booking1 = Booking.builder()
+                .booker(user)
+                .item(item)
+                .start(LocalDateTime.now().plusDays(30))
+                .end(LocalDateTime.now().plusDays(45))
+                .status(Status.APPROVED)
+                .build();
+
+        Booking booking2 = Booking.builder()
+                .booker(user)
+                .item(item)
+                .start(LocalDateTime.now().plusDays(60))
+                .end(LocalDateTime.now().plusDays(80))
+                .status(Status.APPROVED)
+                .build();
+
+        bookingRepository.save(booking1);
+        bookingRepository.save(booking2);
+
+        List<ResponseBookingDto> bookings = bookingService.getAllByOwner(owner.getId(), State.ALL);
+
+        assertThat(bookings).hasSize(2);
+        assertThat(bookings.get(0).getId()).isEqualTo(booking1.getId());
+        assertThat(bookings.get(1).getId()).isEqualTo(booking2.getId());
+    }
+
+    @Test
+    void getPastByOwnerTest() {
+        Booking booking1 = Booking.builder()
+                .booker(user)
+                .item(item)
+                .start(LocalDateTime.now().minusDays(30))
+                .end(LocalDateTime.now().minusDays(15))
+                .status(Status.CANCELED)
+                .build();
+
+        Booking booking2 = Booking.builder()
+                .booker(user)
+                .item(item)
+                .start(LocalDateTime.now().minusDays(14))
+                .end(LocalDateTime.now().minusDays(7))
+                .status(Status.CANCELED)
+                .build();
+
+        bookingRepository.save(booking1);
+        bookingRepository.save(booking2);
+
+        List<ResponseBookingDto> bookings = bookingService.getAllByOwner(owner.getId(), State.ALL);
+
+        assertThat(bookings).hasSize(2);
+        assertThat(bookings.get(0).getId()).isEqualTo(booking1.getId());
+        assertThat(bookings.get(1).getId()).isEqualTo(booking2.getId());
+    }
+
+    @Test
+    void getRejectedByOwnerTest() {
+        Booking booking1 = Booking.builder()
+                .booker(user)
+                .item(item)
+                .start(LocalDateTime.now().plusDays(30))
+                .end(LocalDateTime.now().plusDays(45))
+                .status(Status.REJECTED)
+                .build();
+
+        Booking booking2 = Booking.builder()
+                .booker(user)
+                .item(item)
+                .start(LocalDateTime.now().plusDays(60))
+                .end(LocalDateTime.now().plusDays(80))
+                .status(Status.APPROVED)
+                .build();
+
+        bookingRepository.save(booking1);
+        bookingRepository.save(booking2);
+
+        List<ResponseBookingDto> bookings = bookingService.getAllByOwner(owner.getId(), State.REJECTED);
+
+        assertThat(bookings).hasSize(1);
+        assertThat(bookings.get(0).getId()).isEqualTo(booking1.getId());
+    }
+
+    @Test
+    void getWaitingByOwnerTest() {
+        Booking booking1 = Booking.builder()
+                .booker(user)
+                .item(item)
+                .start(LocalDateTime.now().plusDays(30))
+                .end(LocalDateTime.now().plusDays(45))
+                .status(Status.WAITING)
+                .build();
+
+        Booking booking2 = Booking.builder()
+                .booker(user)
+                .item(item)
+                .start(LocalDateTime.now().plusDays(60))
+                .end(LocalDateTime.now().plusDays(80))
+                .status(Status.APPROVED)
+                .build();
+
+        bookingRepository.save(booking1);
+        bookingRepository.save(booking2);
+
+        List<ResponseBookingDto> bookings = bookingService.getAllByOwner(owner.getId(), State.WAITING);
+
+        assertThat(bookings).hasSize(1);
+        assertThat(bookings.get(0).getId()).isEqualTo(booking1.getId());
     }
 }
