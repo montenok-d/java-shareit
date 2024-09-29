@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.error.EntityNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.service.UserServiceImpl;
@@ -75,5 +76,16 @@ class UserServiceTest {
         assertEquals(userDto.getId(), returnedUser.getId());
         assertEquals(userDto.getName(), returnedUser.getName());
         assertEquals(userDto.getEmail(), returnedUser.getEmail());
+    }
+
+    @Test
+    void findByIdNotFoundTest() {
+        UserDto userDto = userService.create(user);
+        UserDto returnedUser = userService.findById(userDto.getId());
+        userService.delete(returnedUser.getId());
+
+        EntityNotFoundException thrown = org.junit.jupiter.api.Assertions.assertThrows(EntityNotFoundException.class, () ->
+                userService.findById(returnedUser.getId()));
+        assertEquals(String.format("User № %d not found", returnedUser.getId()), thrown.getMessage());
     }
 }

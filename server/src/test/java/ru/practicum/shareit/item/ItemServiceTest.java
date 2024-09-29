@@ -99,6 +99,13 @@ class ItemServiceTest {
     }
 
     @Test
+    void findByIdNotFoundTest() {
+        EntityNotFoundException thrown = org.junit.jupiter.api.Assertions.assertThrows(EntityNotFoundException.class, () ->
+                itemService.getById(9999));
+        assertEquals(String.format("Item № %d not found", 9999), thrown.getMessage());
+    }
+
+    @Test
     void createTest() {
         ItemDto itemCreateDto = ItemDto.builder()
                 .name("New Item")
@@ -155,6 +162,20 @@ class ItemServiceTest {
         itemService.delete(createdItem.getId(), createdItem.getOwner());
 
         AssertionsForClassTypes.assertThat(itemRepository.findById(user.getId()).isEmpty());
+    }
+
+    @Test
+    void deleteWrongUserTest() {
+        ItemDto item = ItemDto.builder()
+                .name("New Item")
+                .description("New description")
+                .available(true)
+                .build();
+        ItemDto createdItem = itemService.create(item, owner.getId());
+
+        EntityNotFoundException thrown = Assertions.assertThrows(EntityNotFoundException.class, () ->
+                itemService.delete(createdItem.getId(), user.getId()));
+        assertEquals("Access denied", thrown.getMessage());
     }
 
     @Test
