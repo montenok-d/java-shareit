@@ -35,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Transactional
 class ItemServiceTest {
+
     @Autowired
     private UserRepository userRepository;
 
