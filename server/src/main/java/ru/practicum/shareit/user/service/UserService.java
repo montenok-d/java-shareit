@@ -4,7 +4,7 @@ import ru.practicum.shareit.user.dto.UserDto;
 
 public interface UserService {
 
-    UserDto getById(long id);
+    UserDto findById(long id);
 
     UserDto create(UserDto userDto);
 
