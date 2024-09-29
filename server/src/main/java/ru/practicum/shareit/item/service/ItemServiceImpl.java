@@ -145,7 +145,7 @@ public class ItemServiceImpl implements ItemService {
         return CommentMapper.mapToCommentDto(comment);
     }
 
-    public Item checkItemExists(long id) {
+    private Item checkItemExists(long id) {
         return itemRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Item № %d not found", id)));
     }

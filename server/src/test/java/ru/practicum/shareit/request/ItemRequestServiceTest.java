@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.error.EntityNotFoundException;
+import ru.practicum.shareit.error.ValidationException;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
@@ -18,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -51,6 +54,13 @@ class ItemRequestServiceTest {
 
         assertThat(returnedRequest.getId()).isEqualTo(itemRequest.getId());
         assertThat(returnedRequest.getDescription()).isEqualTo("Description");
+    }
+
+    @Test
+    void findByIdNotFoundTest() {
+        EntityNotFoundException thrown = org.junit.jupiter.api.Assertions.assertThrows(EntityNotFoundException.class, () ->
+                itemRequestService.findById(9999));
+        assertEquals(String.format("ItemRequest № %d not found", 9999), thrown.getMessage());
     }
 
     @Test

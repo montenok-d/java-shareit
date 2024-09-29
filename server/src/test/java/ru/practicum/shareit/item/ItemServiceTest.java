@@ -2,14 +2,22 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import org.assertj.core.api.AssertionsForClassTypes;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.Status;
+import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.error.EntityNotFoundException;
+import ru.practicum.shareit.error.ValidationException;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemWithBookingDto;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.service.ItemService;
@@ -42,6 +50,9 @@ class ItemServiceTest {
 
     @Autowired
     private ItemRepository itemRepository;
+
+    @Autowired
+    private BookingRepository bookingRepository;
 
     private User user;
     private User owner;
@@ -104,6 +115,20 @@ class ItemServiceTest {
     }
 
     @Test
+    void itemCreateWithUnavailableRequestIdTest() {
+        ItemDto itemCreateDto = ItemDto.builder()
+                .name("TestCreatedItem")
+                .description("Test created item description")
+                .available(true)
+                .requestId(2L)
+                .build();
+
+        EntityNotFoundException thrown = Assertions.assertThrows(EntityNotFoundException.class, () ->
+                itemService.create(itemCreateDto, owner.getId()));
+        assertEquals(String.format("Item № %d not found", itemCreateDto.getRequestId()), thrown.getMessage());
+    }
+
+    @Test
     void updateTest() {
         ItemDto itemUpdateDto = ItemDto.builder()
                 .id(item.getId())
@@ -149,5 +174,39 @@ class ItemServiceTest {
         assertThat(itemDtoList).hasSize(1);
         assertEquals(itemDtoList.getFirst().getName(), item.getName());
         assertEquals(itemDtoList.getFirst().getDescription(), item.getDescription());
+    }
+
+    @Test
+    void addCommentTest() {
+        Booking booking = new Booking(1L, LocalDateTime.now().minusDays(2), LocalDateTime.now().minusDays(1), item, user, Status.APPROVED);
+        bookingRepository.save(booking);
+        CommentDto commentCreateDto = CommentDto.builder()
+                .text("comment")
+                .created(LocalDateTime.now())
+                .authorName(user.getName())
+                .item(item.getId())
+                .build();
+
+        CommentDto savedComment = itemService.addComment(item.getId(), user.getId(), commentCreateDto);
+
+        assertEquals("comment", savedComment.getText());
+        assertEquals(user.getName(), savedComment.getAuthorName());
+        assertEquals(item.getId(), savedComment.getItem());
+    }
+
+    @Test
+    void addCommentWrongUserTest() {
+        Booking booking = new Booking(1L, LocalDateTime.now().minusDays(2), LocalDateTime.now().minusDays(1), item, user, Status.REJECTED);
+        bookingRepository.save(booking);
+        CommentDto commentCreateDto = CommentDto.builder()
+                .text("comment")
+                .created(LocalDateTime.now())
+                .authorName(user.getName())
+                .item(item.getId())
+                .build();
+
+        ValidationException thrown = Assertions.assertThrows(ValidationException.class, () ->
+                itemService.addComment(item.getId(), user.getId(), commentCreateDto));
+        assertEquals("This user cannot create comment on item", thrown.getMessage());
     }
 }

@@ -14,6 +14,7 @@ import ru.practicum.shareit.booking.model.State;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.error.ValidationException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
@@ -23,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -89,6 +91,34 @@ class BookingServiceTest {
 
         Assertions.assertThat(createdBookingDto.getBooker().getName()).isEqualTo(user.getName());
         Assertions.assertThat(createdBookingDto.getItem().getName()).isEqualTo(newItem.getName());
+    }
+
+    @Test
+    void createNotAvailableTest() {
+        User newOwner = User.builder()
+                .name("New user")
+                .email("new@mail.ru")
+                .build();
+
+        Item newItem = Item.builder()
+                .name("New item")
+                .description("New description")
+                .available(false)
+                .owner(newOwner)
+                .request(null)
+                .build();
+        userRepository.save(newOwner);
+        itemRepository.save(newItem);
+
+        BookingDto bookingCreateDto = BookingDto.builder()
+                .itemId(newItem.getId())
+                .start(LocalDateTime.now().plusMinutes(10))
+                .end(LocalDateTime.now().plusDays(3))
+                .build();
+
+        ValidationException thrown = org.junit.jupiter.api.Assertions.assertThrows(ValidationException.class, () ->
+                bookingService.create(bookingCreateDto, user.getId()));
+        assertEquals("Booking is not available", thrown.getMessage());
     }
 
     @Test
