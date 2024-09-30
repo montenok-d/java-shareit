@@ -1,7 +1,6 @@
 package ru.practicum.shareit.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,9 +46,8 @@ class UserControllerTest {
                 .build();
     }
 
-    @SneakyThrows
     @Test
-    void createTest() {
+    void createTest() throws Exception {
         when(userService.create(any()))
                 .thenReturn(userDto);
 
@@ -67,9 +65,8 @@ class UserControllerTest {
         verifyNoMoreInteractions(userService);
     }
 
-    @SneakyThrows
     @Test
-    void updateTest() {
+    void updateTest() throws Exception {
         when(userService.update(any(), anyLong()))
                 .thenReturn(userDto);
 
@@ -87,18 +84,16 @@ class UserControllerTest {
         verifyNoMoreInteractions(userService);
     }
 
-    @SneakyThrows
     @Test
-    void deleteUserTest() {
+    void deleteUserTest() throws Exception {
         mvc.perform(MockMvcRequestBuilders.delete("/users/1"))
                 .andExpect(status().isOk());
         verify(userService, times(1)).delete(anyLong());
         verifyNoMoreInteractions(userService);
     }
 
-    @SneakyThrows
     @Test
-    void findByIdTest() {
+    void findByIdTest() throws Exception {
         when(userService.findById(anyLong()))
                 .thenReturn(userDto);
 

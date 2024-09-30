@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +23,6 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -61,9 +59,8 @@ class ItemControllerTest {
                 .build();
     }
 
-    @SneakyThrows
     @Test
-    void findByIdTest() {
+    void findByIdTest() throws Exception {
         when(itemService.getById(anyLong()))
                 .thenReturn(itemDto);
 
@@ -83,9 +80,8 @@ class ItemControllerTest {
         verifyNoMoreInteractions(itemService);
     }
 
-    @SneakyThrows
     @Test
-    void createItemTest() {
+    void createItemTest() throws Exception {
         when(itemService.create(any(), anyLong()))
                 .thenReturn(itemDto);
 
@@ -105,9 +101,8 @@ class ItemControllerTest {
         verifyNoMoreInteractions(itemService);
     }
 
-    @SneakyThrows
     @Test
-    void updateItemTest() {
+    void updateItemTest() throws Exception {
         when(itemService.update(any(), anyLong(), anyLong()))
                 .thenReturn(itemDto);
 
@@ -128,9 +123,8 @@ class ItemControllerTest {
         verifyNoMoreInteractions(itemService);
     }
 
-    @SneakyThrows
     @Test
-    void deleteItemTest() {
+    void deleteItemTest() throws Exception {
         mvc.perform(MockMvcRequestBuilders.delete("/items/1")
                         .header("X-Sharer-User-Id", 1L))
                 .andExpect(status().isOk());
@@ -138,11 +132,11 @@ class ItemControllerTest {
         verifyNoMoreInteractions(itemService);
     }
 
-    @SneakyThrows
     @Test
-    void getAllByOwnerTest() {
+    void getAllByOwnerTest() throws Exception {
+        int listLength = 5;
         List<ItemWithBookingDto> items = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < listLength; i++) {
             ItemWithBookingDto item = ItemWithBookingDto.builder()
                     .id(i)
                     .name("name " + i)
@@ -162,16 +156,16 @@ class ItemControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()", is(5)));
+                .andExpect(jsonPath("$.length()", is(listLength)));
         verify(itemService, times(1)).getAll(anyLong());
         verifyNoMoreInteractions(itemService);
     }
 
-    @SneakyThrows
     @Test
-    void searchTest() {
+    void searchTest() throws Exception {
+        int listLength = 5;
         List<ItemDto> items = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < listLength; i++) {
             ItemDto item = ItemDto.builder()
                     .id(i)
                     .name("name " + i)
@@ -191,14 +185,13 @@ class ItemControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()", is(5)));
+                .andExpect(jsonPath("$.length()", is(listLength)));
         verify(itemService, times(1)).search(any());
         verifyNoMoreInteractions(itemService);
     }
 
-    @SneakyThrows
     @Test
-    void createCommentTest() {
+    void createCommentTest() throws Exception {
         when(itemService.addComment(anyLong(), anyLong(), any()))
                 .thenReturn(commentDto);
 

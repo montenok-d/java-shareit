@@ -1,7 +1,6 @@
 package ru.practicum.shareit.request;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +20,6 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -49,9 +47,8 @@ class ItemRequestControllerTest {
                 .build();
     }
 
-    @SneakyThrows
     @Test
-    void findByIdTest() {
+    void findByIdTest() throws Exception {
         when(itemRequestService.findById(anyLong()))
                 .thenReturn(itemRequestDto);
 
@@ -67,9 +64,8 @@ class ItemRequestControllerTest {
         verifyNoMoreInteractions(itemRequestService);
     }
 
-    @SneakyThrows
     @Test
-    void findAllByOwnerTest() {
+    void findAllByOwnerTest() throws Exception {
         List<ItemRequestDto> requests = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             ItemRequestDto itemRequestDto = ItemRequestDto.builder()
@@ -94,11 +90,11 @@ class ItemRequestControllerTest {
         verifyNoMoreInteractions(itemRequestService);
     }
 
-    @SneakyThrows
     @Test
-    void findAllTest() {
+    void findAllTest() throws Exception {
+        int listLength = 5;
         List<ItemRequestDto> requests = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < listLength; i++) {
             ItemRequestDto itemRequestDto = ItemRequestDto.builder()
                     .id(i)
                     .description("description")
@@ -116,14 +112,13 @@ class ItemRequestControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()", is(5)));
+                .andExpect(jsonPath("$.length()", is(listLength)));
         verify(itemRequestService, times(1)).findAll();
         verifyNoMoreInteractions(itemRequestService);
     }
 
-    @SneakyThrows
     @Test
-    void createTest() {
+    void createTest() throws Exception {
         when(itemRequestService.create(anyLong(), any()))
                 .thenReturn(itemRequestDto);
 

@@ -1,7 +1,6 @@
 package ru.practicum.shareit.booking;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +24,6 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -64,9 +62,8 @@ class BookingControllerTest {
                 .build();
     }
 
-    @SneakyThrows
     @Test
-    void createTest() {
+    void createTest() throws Exception {
         when(bookingService.create(bookingDto, 1L))
                 .thenReturn(responseBookingDto);
 
@@ -83,9 +80,8 @@ class BookingControllerTest {
         verifyNoMoreInteractions(bookingService);
     }
 
-    @SneakyThrows
     @Test
-    void updateTest() {
+    void updateTest() throws Exception {
         when(bookingService.update(anyLong(), anyBoolean(), anyLong()))
                 .thenReturn(responseBookingDto);
 
@@ -102,9 +98,8 @@ class BookingControllerTest {
         verifyNoMoreInteractions(bookingService);
     }
 
-    @SneakyThrows
     @Test
-    void findByIdTest() {
+    void findByIdTest() throws Exception {
         when(bookingService.findById(anyLong(), anyLong()))
                 .thenReturn(responseBookingDto);
 
@@ -120,11 +115,11 @@ class BookingControllerTest {
         verifyNoMoreInteractions(bookingService);
     }
 
-    @SneakyThrows
     @Test
-    void getAllByBookerTest() {
+    void getAllByBookerTest() throws Exception {
+        int listLength = 5;
         List<ResponseBookingDto> listBookings = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < listLength; i++) {
             ResponseBookingDto responseBookingDto = ResponseBookingDto.builder()
                     .id(i)
                     .start(localDateTime)
@@ -143,16 +138,16 @@ class BookingControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(5));
+                .andExpect(jsonPath("$.length()").value(listLength));
         verify(bookingService, times(1)).getAllByBooker(1L, State.ALL);
         verifyNoMoreInteractions(bookingService);
     }
 
-    @SneakyThrows
     @Test
-    void getAllByOwnerTest() {
+    void getAllByOwnerTest() throws Exception {
+        int listLength = 5;
         List<ResponseBookingDto> listBookings = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < listLength; i++) {
             ResponseBookingDto responseBookingDto = ResponseBookingDto.builder()
                     .id(i)
                     .start(localDateTime)
@@ -171,7 +166,7 @@ class BookingControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(5));
+                .andExpect(jsonPath("$.length()").value(listLength));
         verify(bookingService, times(1)).getAllByOwner(1L, State.ALL);
         verifyNoMoreInteractions(bookingService);
     }
