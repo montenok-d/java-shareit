@@ -9,7 +9,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.request.controller.ItemRequestController;
-import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.request.dto.ItemWebResponceDto;
 import ru.practicum.shareit.request.service.ItemRequestService;
 
 import java.nio.charset.StandardCharsets;
@@ -37,11 +37,11 @@ class ItemRequestControllerTest {
     @MockBean
     private ItemRequestService itemRequestService;
 
-    private ItemRequestDto itemRequestDto;
+    private ItemWebResponceDto itemRequestDto;
 
     @BeforeEach
     void setUp() {
-        itemRequestDto = ItemRequestDto.builder()
+        itemRequestDto = ItemWebResponceDto.builder()
                 .id(1L)
                 .description("description")
                 .build();
@@ -66,9 +66,9 @@ class ItemRequestControllerTest {
 
     @Test
     void findAllByOwnerTest() throws Exception {
-        List<ItemRequestDto> requests = new ArrayList<>();
+        List<ItemWebResponceDto> requests = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
-            ItemRequestDto itemRequestDto = ItemRequestDto.builder()
+            ItemWebResponceDto itemRequestDto = ItemWebResponceDto.builder()
                     .id(i)
                     .description("description")
                     .build();
@@ -93,9 +93,9 @@ class ItemRequestControllerTest {
     @Test
     void findAllTest() throws Exception {
         int listLength = 5;
-        List<ItemRequestDto> requests = new ArrayList<>();
+        List<ItemWebResponceDto> requests = new ArrayList<>();
         for (int i = 0; i < listLength; i++) {
-            ItemRequestDto itemRequestDto = ItemRequestDto.builder()
+            ItemWebResponceDto itemRequestDto = ItemWebResponceDto.builder()
                     .id(i)
                     .description("description")
                     .build();

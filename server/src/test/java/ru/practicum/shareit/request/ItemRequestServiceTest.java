@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.error.EntityNotFoundException;
-import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.request.dto.ItemWebResponceDto;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.request.service.ItemRequestServiceImpl;
@@ -49,7 +49,7 @@ class ItemRequestServiceTest {
                 .build();
         itemRequestRepository.save(itemRequest);
 
-        ItemRequestDto returnedRequest = itemRequestService.findById(itemRequest.getId());
+        ItemWebResponceDto returnedRequest = itemRequestService.findById(itemRequest.getId());
 
         assertThat(returnedRequest.getId()).isEqualTo(itemRequest.getId());
         assertThat(returnedRequest.getDescription()).isEqualTo("Description");
@@ -71,7 +71,7 @@ class ItemRequestServiceTest {
                 .build();
         itemRequestRepository.save(itemRequest);
 
-        List<ItemRequestDto> requests = itemRequestService.findAllByOwner(user.getId());
+        List<ItemWebResponceDto> requests = itemRequestService.findAllByOwner(user.getId());
 
         assertThat(requests).hasSize(1);
         assertThat(requests.getFirst().getDescription().equals("Description New"));
@@ -79,11 +79,11 @@ class ItemRequestServiceTest {
 
     @Test
     void createItemRequestTest() {
-        ItemRequestDto requestDto = ItemRequestDto.builder()
+        ItemWebResponceDto requestDto = ItemWebResponceDto.builder()
                 .description("Description")
                 .build();
 
-        ItemRequestDto savedRequestDto = itemRequestService.create(user.getId(), requestDto);
+        ItemWebResponceDto savedRequestDto = itemRequestService.create(user.getId(), requestDto);
 
         Optional<ItemRequest> requestFromRepository = itemRequestRepository.findById(savedRequestDto.getId());
         assertThat(requestFromRepository).isPresent();
@@ -99,7 +99,7 @@ class ItemRequestServiceTest {
                 .build();
         itemRequestRepository.save(itemRequest);
 
-        List<ItemRequestDto> requests = itemRequestService.findAll();
+        List<ItemWebResponceDto> requests = itemRequestService.findAll();
 
         assertThat(requests).hasSize(1);
     }

@@ -13,7 +13,7 @@ import java.util.List;
 @Setter
 @Builder
 @RequiredArgsConstructor
-public class ItemRequestDto {
+public class ItemWebResponceDto {
     private long id;
     private String description;
     private LocalDateTime created;

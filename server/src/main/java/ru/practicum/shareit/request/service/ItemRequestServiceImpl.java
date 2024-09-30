@@ -7,7 +7,8 @@ import ru.practicum.shareit.error.EntityNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.request.dto.ItemWebRequestDto;
+import ru.practicum.shareit.request.dto.ItemWebResponceDto;
 import ru.practicum.shareit.request.mapper.RequestMapping;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
@@ -26,27 +27,27 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     private final ItemRepository itemRepository;
 
     @Override
-    public ItemRequestDto findById(long id) {
+    public ItemWebResponceDto findById(long id) {
         ItemRequest request = requestRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("ItemRequest № %d not found", id)));
         List<ItemDto> itemsDto = itemRepository.findByRequestId(request.getId()).stream()
                 .map(ItemMapper::mapToItemDto)
                 .toList();
-        ItemRequestDto requestDto = RequestMapping.mapToRequestDto(request);
+        ItemWebResponceDto requestDto = RequestMapping.mapToRequestDto(request);
         requestDto.setItems(itemsDto);
         return requestDto;
     }
 
     @Override
-    public List<ItemRequestDto> findAllByOwner(long ownerId) {
+    public List<ItemWebResponceDto> findAllByOwner(long ownerId) {
         if (!userRepository.existsById(ownerId)) {
             throw new EntityNotFoundException(String.format("User № %d not found", ownerId));
         }
         List<ItemRequest> requests = requestRepository.findByRequestorId(ownerId);
-        List<ItemRequestDto> requestsDto = requests.stream()
+        List<ItemWebResponceDto> requestsDto = requests.stream()
                 .map(RequestMapping::mapToRequestDto)
                 .toList();
-        for (ItemRequestDto request : requestsDto) {
+        for (ItemWebResponceDto request : requestsDto) {
             List<ItemDto> itemsDto = itemRepository.findByRequestId(request.getId()).stream()
                     .map(ItemMapper::mapToItemDto)
                     .toList();
@@ -56,9 +57,9 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public List<ItemRequestDto> findAll() {
+    public List<ItemWebResponceDto> findAll() {
         List<ItemRequest> requests = requestRepository.findAll();
-        List<ItemRequestDto> requestsDto = requests.stream()
+        List<ItemWebResponceDto> requestsDto = requests.stream()
                 .map(RequestMapping::mapToRequestDto)
                 .toList();
         return requestsDto;
@@ -66,7 +67,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Transactional
     @Override
-    public ItemRequestDto create(long ownerId, ItemRequestDto requestDto) {
+    public ItemWebResponceDto create(long ownerId, ItemWebRequestDto requestDto) {
         User requestor = userRepository.findById(ownerId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("User № %d not found", ownerId)));
         ItemRequest itemRequest = RequestMapping.mapToRequest(requestDto);
